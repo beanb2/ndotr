@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+.quarto
+data-raw/TRAN_Nevada_State_Shape
+data-raw/DomesticNames_NV_Text
