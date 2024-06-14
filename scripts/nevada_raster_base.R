@@ -1,8 +1,6 @@
 library(terra)
 library(sf)
 library(tidyverse)
-library(rasterVis)
-library(latticeExtra)
 library(stars)
 
 rast_final <- rast("data-raw/simple_features/temp_thresh_rast.nc")
@@ -35,7 +33,7 @@ nv_cities_sub <- nv_cities |>
 
 ggplot() +
   geom_stars(data = rast_stars) +
-  scale_fill_viridis_c("Temperature Threshold (deg C)") + # Optional: Use a color scale for the raster
+  scale_fill_viridis_c("Temperature Threshold (deg C)") +
   geom_sf(data = nevada_sf, fill = NA, color = "black") +
   geom_sf(data = nevada_sf2, fill = NA, color = "black", lwd = 1) +
   geom_sf(data = nevada_roads, fill = NA, color = "gray40", lty = 2) +
