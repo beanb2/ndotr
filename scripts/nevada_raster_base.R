@@ -5,12 +5,9 @@ library(rasterVis)
 library(latticeExtra)
 library(stars)
 
-rast1 <- rast("data-raw/jennings_et_al_2018_file4_temp50_raster.tif")
-rast2 <- rast("data-raw/jennings_et_al_2018_file5_temp50_linregr_raster.tif")
+rast_final <- rast("data-raw/simple_features/temp_thresh_rast.nc")
 
-crs(rast1) <- crs(rast2) <-  "EPSG:4326"
-
-# Code below aided by ChatGPT:
+rast_stars <- st_as_stars(rast_final)
 
 # Crop both rasters based on a buffer extend around the state of Nevada.
 nevada_map <- maps::map("county", "nevada", plot = FALSE, fill = TRUE)
@@ -19,23 +16,8 @@ nevada_map2 <- maps::map("state", "nevada", plot = FALSE, fill = TRUE)
 # Convert the map data to an sf object
 nevada_sf <- st_as_sf(nevada_map)
 nevada_sf2 <- st_as_sf(nevada_map2)
-
-# Transform to a projection that uses meters (e.g., UTM zone 11N, EPSG:32611)
-nevada_sf_utm <- st_transform(nevada_sf, 32611)
-# Create a 50km buffer
-nevada_buffer_utm <- st_buffer(nevada_sf_utm, dist = 50000)
-# Transform the buffer back to the original geographic coordinates (WGS84)
-nevada_buffer <- st_transform(nevada_buffer_utm, st_crs(rast1))
-nevada_sf <- st_transform(nevada_sf, st_crs(rast1))
-nevada_sf2 <- st_transform(nevada_sf2, st_crs(rast1))
-
-rast1_crop <- crop(rast1, nevada_buffer)
-rast2_crop <- crop(rast2, nevada_buffer)
-
-rast_final <- cover(rast1_crop, rast2_crop)
-
-rast_stars <- st_as_stars(rast_final)
-st_crs(rast_stars)
+nevada_sf <- st_transform(nevada_sf, st_crs(rast_final))
+nevada_sf2 <- st_transform(nevada_sf2, st_crs(rast_final))
 
 nevada_roads <- st_read("data-raw/simple_features", layer = "nv_road_simp") |>
   st_transform(st_crs(nevada_sf))
@@ -47,7 +29,9 @@ nv_cities_sub <- nv_cities |>
   select(name = Feature.Name, lat = Latitude, lon = Longitude) |>
   filter(name %in% coi) |>
   st_as_sf(coords = c("lon", "lat"), crs = 4326) |>
-  st_transform(crs = st_crs(rast1))
+  st_transform(crs = st_crs(rast_final))
+
+
 
 ggplot() +
   geom_stars(data = rast_stars) +
