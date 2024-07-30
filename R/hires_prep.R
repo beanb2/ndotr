@@ -4,7 +4,8 @@
 #'   decision support tool.
 #'
 #' @param path File path containing a folder of NAM hires forecast rasters
-#' @param type File type
+#' @param type File type (should be a raster file type such as nc, grib2,
+#'   tif, etc.)
 #' @param cropper An sf shapefile used to crop the forecast data to a relevant
 #'   spatial extent.
 #' @param layer_names A vector of layer names (see NAM hires files and
@@ -32,9 +33,15 @@ hires_prep <- function(path, type = "grib2", cropper = ndotr::nevada_buffer,
     pattern = paste0("\\.", type, "$"),
     full.names = TRUE
   )
+  tfiles_short <- list.files(
+    path = path,
+    pattern = paste0("\\.", type, "$"),
+    full.names = FALSE
+  )
 
   # Extract the hours (using base R intentionally)
-  t_hours <- regmatches(tfiles, gregexpr("f[[:digit:]]+\\.", tfiles)) |>
+  t_hours <- regmatches(tfiles_short,
+                        gregexpr("f[[:digit:]]+\\.", tfiles_short)) |>
     unlist() |>
     gsub(pattern = "[^[:digit:]]", replacement = "") |>
     as.numeric()

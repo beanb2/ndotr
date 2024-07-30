@@ -14,33 +14,40 @@
 #'   colors in the ROS TWI decision support tool in Heggli (2023).
 #' @export
 twi_calc <- function(dens_ras, pwp_ras,
-                     dens_thresh = c(26.5, 27.1, 33.0, 38.1)){
-
+                     dens_thresh = c(26.5, 27.1, 33.0, 38.1)) {
   dens_calc <- terra::app(dens_ras,
-                          findInterval, vec = c(-Inf, dens_thresh, Inf))
+    findInterval,
+    vec = c(-Inf, dens_thresh, Inf)
+  )
 
-  twi_list <- vector("list", length(pwp_ras))
-  for(i in seq_len(length(twi_list))){
+  twi_list <- vector("list", dim(pwp_ras)[3])
+  for (i in seq_len(length(twi_list))) {
     twi_list[[i]] <- terra::app(c(dens_calc, pwp_ras[[i]]), lookup_twi)
   }
 
-  terra::rast(twi_list)
+  twi_list <- terra::rast(twi_list)
+
+  # Carry through the time stamps.
+  time(twi_list) <- time(pwp_ras)
+
+  twi_list
 }
 
 
 # Helper function to assign values from the matrix based on the two
 # sets of thresholds.
-lookup_twi <- function(x){
-  #=============================================================================
+lookup_twi <- function(x) {
+  # ============================================================================
   # Define the matrix of "color cutoffs" as in Heggli (2023). This is
   # not something that can be changed by the user.
   mat_twi <- matrix(c(1, 2, 3, 3, 2, 3, 4, 4, 3, 4, 5, 6, 4, 5, 6, 6),
-                    nrow = 4, ncol = 4)
+    nrow = 4, ncol = 4
+  )
 
   # Add a row and columns of zeros for things completely outside the thresholds.
   mat_twi <- cbind(0, mat_twi)
   mat_twi <- rbind(0, mat_twi)
-  #=============================================================================
+  # ============================================================================
 
   mat_twi[x[1], x[2]]
 }

@@ -6,10 +6,11 @@
 #'   per the recommendations from Musselmann et al. (2019) regarding rain on
 #'   snow events with flood generation potential.
 #'
-#' @param swe_path The full file path to the snodas raster containing SWE
-#'   values. Must include the file extension (e.g., tif, nc, etc.)
-#' @param snowd_path The full file path to the snodas raster containing snow
-#'   depth values. Must include the file extension (e.g., tif, nc, etc.)
+#' @param path The path to the folder containing the SNODAS files. Note
+#'   that the folder should ONLY contain the relevant SNODAS files for that
+#'   day.
+#' @param type File type (should be a raster file type such as nc, grib2,
+#'   tif, etc.)
 #' @param cropper An sf shapefile used to crop the forecast data to a relevant
 #'   spatial extent.
 #' @param swe_thresh The amount of SWE required for the ratio calculation
@@ -27,11 +28,28 @@
 #'   not have "swe" anywhere in its name.
 #'
 #' @export
-snodas_prep <- function(swe_path, snowd_path,
-                        cropper = ndotr::nevada_buffer,
-                        swe_thresh = 10){
-  swe <- terra::rast(swe_path)
-  snowd <- terra::rast(snowd_path)
+snodas_prep <- function(path, type = "tif",
+                        cropper = ndotr::nevada_buffer_big,
+                        swe_thresh = 10) {
+  # List all the forecast files.
+  tfiles <- list.files(
+    path = path,
+    pattern = paste0("\\.", type, "$"),
+    full.names = TRUE
+  )
+  tfiles_short <- list.files(
+    path = path,
+    pattern = paste0("\\.", type, "$"),
+    full.names = FALSE
+  )
+
+  # Determine which files in the folder are SWE and which are snowdepth
+  swe_ind <- which(regexpr(pattern = "_swe", tolower(tfiles_short)) > 0)
+  snowd_ind <- which(regexpr(pattern = "_snowdepth", tolower(tfiles_short)) > 0)
+
+  # Read in the files
+  swe <- terra::rast(tfiles[swe_ind])
+  snowd <- terra::rast(tfiles[snowd_ind])
 
   nevada_buffer_t <- cropper |>
     sf::st_transform(crs = terra::crs(swe)) |>
@@ -43,7 +61,7 @@ snodas_prep <- function(swe_path, snowd_path,
   # Replace any nominally small values of snow depth with a negative value.
   snowd[snowd < 1e-4] <- -1
 
-  ratio = (swe/snowd) * 100
+  ratio <- (swe / snowd) * 100
 
   # Replace all negative ratios with 0
   ratio[ratio < 0] <- 0
