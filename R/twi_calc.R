@@ -30,6 +30,9 @@ twi_calc <- function(dens_ras, pwp_ras,
   # Carry through the time stamps.
   time(twi_list) <- time(pwp_ras)
 
+  # twi_list <- as.factor(twi_list)
+  # levels(twi_list) <- data.frame(ID = 0:6, label = 0:6)
+
   twi_list
 }
 

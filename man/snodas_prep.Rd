@@ -4,18 +4,28 @@
 \alias{snodas_prep}
 \title{Calculate SNODAS snowpack density}
 \usage{
-snodas_prep(swe_path, snowd_path, swe_thresh = 10)
+snodas_prep(
+  path,
+  type = "tif",
+  cropper = ndotr::nevada_buffer_big,
+  swe_thresh = 10
+)
 }
 \arguments{
-\item{swe_path}{The full file path to the snodas raster containing SWE
-values. Must include the file extension (e.g., tif, nc, etc.)}
+\item{path}{The path to the folder containing the SNODAS files. Note
+that the folder should ONLY contain the relevant SNODAS files for that
+day.}
 
-\item{snowd_path}{The full file path to the snodas raster containing snow
-depth values. Must include the file extension (e.g., tif, nc, etc.)}
+\item{type}{File type (should be a raster file type such as nc, grib2,
+tif, etc.)}
+
+\item{cropper}{An sf shapefile used to crop the forecast data to a relevant
+spatial extent.}
 
 \item{swe_thresh}{The amount of SWE required for the ratio calculation
 to be relevant. All locations with SWE below this value are assigned
-a ratio of zero automatically.}
+a ratio of zero automatically. Default is the 10mm cited in the Musselmann
+et al. (2019) paper.}
 }
 \value{
 A single layer spatraster containing the snow density percentages
@@ -27,4 +37,12 @@ SNODAS gridded products. Note that the function also excludes
 all snowpack from consideration if the SWE is less than 10mm
 per the recommendations from Musselmann et al. (2019) regarding rain on
 snow events with flood generation potential.
+}
+\details{
+This package assumes that there will be precisely two raster files stored
+in a folder: one containing the SWE values and another containing the
+snow depth values on the same day. There should be no other files in this
+folder. The function assumes that the file name for the SWE values will
+include "SWE" or "swe" in the name and that the snow depth file will
+not have "swe" anywhere in its name.
 }

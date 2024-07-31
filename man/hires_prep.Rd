@@ -15,7 +15,8 @@ hires_prep(
 \arguments{
 \item{path}{File path containing a folder of NAM hires forecast rasters}
 
-\item{type}{File type}
+\item{type}{File type (should be a raster file type such as nc, grib2,
+tif, etc.)}
 
 \item{cropper}{An sf shapefile used to crop the forecast data to a relevant
 spatial extent.}

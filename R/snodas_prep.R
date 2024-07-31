@@ -47,10 +47,12 @@ snodas_prep <- function(path, type = "tif",
   swe_ind <- which(regexpr(pattern = "_swe", tolower(tfiles_short)) > 0)
   snowd_ind <- which(regexpr(pattern = "_snowdepth", tolower(tfiles_short)) > 0)
 
-  # Read in the files
-  swe <- terra::rast(tfiles[swe_ind])
-  snowd <- terra::rast(tfiles[snowd_ind])
+  # Read in the files. If multiple SNODAS files that match the
+  # names are in the files, only the first one will be used.
+  swe <- terra::rast(tfiles[swe_ind[1]])
+  snowd <- terra::rast(tfiles[snowd_ind[1]])
 
+  # Crop the raster to a buffered version of Nevada.
   nevada_buffer_t <- cropper |>
     sf::st_transform(crs = terra::crs(swe)) |>
     terra::vect()
