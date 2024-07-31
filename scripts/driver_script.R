@@ -28,6 +28,7 @@ png_path <- "figures/png_test"
 
 ### RASTER PREP ###
 
+###
 # Read in the nam_hires data and calculate the present weather potential (pwp)
 # thresholds.
 thires <- hires_prep(path = hires_path, type = hires_type)
