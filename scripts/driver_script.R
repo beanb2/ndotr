@@ -23,6 +23,9 @@ snodas_type <- "tif"
 png_path <- "figures/png_test"
 #===============================================================================
 
+# Clean up the figure folder in preparation for making new ones
+# clean_folder(png_path)
+
 ### RASTER PREP ###
 
 # Read in the nam_hires data and calculate the present weather potential (pwp)
