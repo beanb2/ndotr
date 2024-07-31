@@ -2,7 +2,8 @@
 #'
 #' Function to clean out all the contents of a folder once finished with it.
 #' @param path location of the folder in which to delete all contents.
-#' @returns NULL.
+#' @returns Nothing.
+#' @export
 clean_folder <- function(path){
   # Steps of function created with chatGPT
   files <- list.files(path, full.names = TRUE, recursive = TRUE)

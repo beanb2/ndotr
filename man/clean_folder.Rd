@@ -10,7 +10,7 @@ clean_folder(path)
 \item{path}{location of the folder in which to delete all contents.}
 }
 \value{
-NULL.
+Nothing.
 }
 \description{
 Function to clean out all the contents of a folder once finished with it.
