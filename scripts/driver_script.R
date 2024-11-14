@@ -36,6 +36,25 @@ thires <- hires_prep(path = hires_path, type = hires_type)
 # Calculate PWP
 pwp <- pwp_calc(thires)
 
+# Save the timestamp information
+var_names <- varnames(thires[[1]])
+# Prepare the varnames for inclusion in the file writing.
+# The () create a capture group and sub grabs the first (and only)
+# member of the capture group.
+t_part <- sub(".*(t\\d{2}z).*", "\\1", var_names)
+f_part <- sub(".*(f\\d{2}).*", "\\1", var_names)
+
+# Extract the time in order to use it in different ways:
+time_sub <- gsub(substr(thires[[3]], 1, 10), pattern = "-", replacement = "")
+
+# Put it all together the way Jon recommends:
+file_names <- paste("NAM3km",
+                    time_sub,
+                    t_part,
+                    f_part,
+                    "RainOnSnow",
+                    sep = "_")
+
 # Read in SNODAS data and calculate density ratio excluding all cells for which
 # there is less than 10mm of SWE.
 snow_ratio <- snodas_prep(path = snodas_path, type = snodas_type)
@@ -70,7 +89,6 @@ for (i in seq_len(dim(pwp)[3])) {
   ros_stars <- st_as_stars(ros_twi[[i]])
   ros_stars[[1]] <- factor(ros_stars[[1]], levels = 0:6)
 
-
   tplot <- ggplot() +
     geom_stars(data = ros_stars, show.legend = TRUE) +
     geom_sf(data = nv_sf, fill = NA, color = "black") +
@@ -87,7 +105,7 @@ for (i in seq_len(dim(pwp)[3])) {
           legend.text = element_text(size = 18),
           plot.title = element_text(hjust = 0.5))
 
-  png(filename = paste0(png_path, "/forecast_", i, ".png"),
+  png(filename = paste0(png_path, "/", file_names[i], ".png"),
       width = 8, height = 8, units = "in", res = 600)
   print(tplot)
   dev.off()

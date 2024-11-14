@@ -12,8 +12,8 @@
 #'   documentation for details). The first layer name must correspond to precip
 #'   and the second must correspond to temperature.
 #' @returns A list of three including (1) a raster of 6 hour precipitation
-#'   forecasts, (2) a raster of 6 hour maximum temperature, and (3) a vector
-#'   of timestamps as obtained from the raster files.
+#'   forecasts, (2) a raster of 6 hour maximum temperature, and (3) a timestamp
+#'   for the initial forecast file.
 #' @export
 hires_prep <- function(path, type = "grib2", cropper = ndotr::nevada_buffer,
                        layer_names = c(
@@ -53,6 +53,7 @@ hires_prep <- function(path, type = "grib2", cropper = ndotr::nevada_buffer,
   # Use the first (initial) file to determine the CRS, then ignore it
   # thereafter.
   t_crs <- terra::crs(terra::rast(tfiles[1]))
+  initial_time <- terra::time(terra::rast(tfiles[1]))[1]
 
   # Crop the forecast files based on the saved Nevada Buffer
   nevada_buffer_t <- cropper |>
@@ -61,13 +62,10 @@ hires_prep <- function(path, type = "grib2", cropper = ndotr::nevada_buffer,
 
   # Download, subset, and crop the rasters into a list.
   rast_list <- vector("list", t_length - 1)
-  time <- as.POSIXct(rep(NA, t_length - 1), tz = "US/Pacific")
   for (i in 2:t_length) {
     rast_list[[i - 1]] <- terra::rast(tfiles[i]) |>
       terra::subset(layer_names) |>
       terra::crop(nevada_buffer_t)
-
-    time[i - 1] <- terra::time(rast_list[[i - 1]])[1]
   }
 
   # Anne's method using 6 hourly forecasts. Hires provides 3 hourly.
@@ -97,7 +95,6 @@ hires_prep <- function(path, type = "grib2", cropper = ndotr::nevada_buffer,
   # Create a single raster layer for precip and temp and store the time.
   precip_final <- terra::rast(precip_list)
   temp_final <- terra::rast(temp_list)
-  time_final <- time[new_seq + 1]
 
-  list(precip_final, temp_final, time_final)
+  list(precip_final, temp_final, initial_time)
 }
